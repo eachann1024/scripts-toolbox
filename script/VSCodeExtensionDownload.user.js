@@ -72,6 +72,19 @@
             return versionElement.textContent.trim();
         }
 
+        // New fallback: Try to find version in the JSON script tag
+        const jsonScript = document.querySelector('script.jiContent');
+        if (jsonScript) {
+            try {
+                const jsonData = JSON.parse(jsonScript.textContent);
+                if (jsonData.Resources && jsonData.Resources.Version) {
+                    return jsonData.Resources.Version;
+                }
+            } catch (e) {
+                console.error('Error parsing JSON from script tag:', e);
+            }
+        }
+
         // If not found, throw an error
         throw new Error('Could not find extension version on the page');
     }
@@ -87,64 +100,6 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-    }
-
-    // Function to add the download button to the page
-    function addDownloadButton() {
-        try {
-            const itemName = getItemNameFromURL();
-            if (!itemName) {
-                console.error('Item name not found in URL');
-                return;
-            }
-
-            const { publisher, extensionName } = parseItemName(itemName);
-            const version = findVersion();
-
-            // Find the install button container
-            const installContainer = document.querySelector('.one-click-install-container');
-            if (!installContainer) {
-                console.error('Install button container not found');
-                return;
-            }
-
-            // Clone the install button to maintain styles
-            const installButton = installContainer.querySelector('.ms-Button.ux-button.install');
-            if (!installButton) {
-                console.error('Install button not found');
-                return;
-            }
-
-            const downloadButton = installButton.cloneNode(true);
-            
-            // Modify the cloned button for download
-            const label = downloadButton.querySelector('.ms-Button-label');
-            if (label) {
-                label.textContent = 'Download';
-                label.id = 'download-button-label'; // Give it a unique ID
-            }
-
-            // Remove any existing click handlers (safely)
-            const newElement = downloadButton.cloneNode(true);
-            downloadButton.parentNode.replaceChild(newElement, downloadButton);
-
-            // Add new click handler for download
-            newElement.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                try {
-                    downloadVSIX(publisher, extensionName, version);
-                } catch (error) {
-                    console.error('Error downloading VSIX:', error);
-                    alert('Failed to start download. Please check console for details.');
-                }
-            });
-
-            // Insert the download button after the install button container
-            installContainer.parentNode.insertBefore(newElement, installContainer.nextSibling);
-        } catch (error) {
-            console.error('Error adding download button:', error);
-        }
     }
 
     // Function to create and insert custom install buttons
@@ -241,6 +196,42 @@
                 customButtonsContainer.appendChild(buttonWrapper);
             });
 
+            // Create download button
+            const downloadButtonWrapper = document.createElement('span');
+            downloadButtonWrapper.className = 'ux-oneclick-install-button-container';
+            downloadButtonWrapper.innerHTML = `
+                <button type="button" class="ms-Button ux-button install ms-Button--default root-39" data-is-focusable="true" id="download-extension-button">
+                    <div class="ms-Button-flexContainer flexContainer-40">
+                        <div class="ms-Button-textContainer textContainer-41">
+                            <div class="ms-Button-label label-43">
+                                <img src="https://icon.horse/icon/visualstudio.com" alt="Download icon" style="width: 16px; height: 16px; margin-right: 8px; vertical-align: text-bottom;">
+                                Download Extension
+                            </div>
+                        </div>
+                    </div>
+                </button>
+            `;
+
+            const downloadButton = downloadButtonWrapper.querySelector('button');
+            
+            // Add click handler for download
+            downloadButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                try {
+                    // Find version when button is clicked
+                    const version = findVersion();
+                    downloadVSIX(publisher, extensionName, version);
+                } catch (error) {
+                    console.error('Error downloading extension:', error);
+                    alert('Failed to download extension. Please check console for details.');
+                }
+            });
+
+            // Add download button to container
+            customButtonsContainer.appendChild(downloadButtonWrapper);
+
             // Insert the custom buttons container after the main install container
             installContainer.parentNode.insertBefore(customButtonsContainer, installContainer.nextSibling);
         } catch (error) {
@@ -251,12 +242,10 @@
     // Wait for the page to load completely
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
-            addDownloadButton();
             addCustomInstallButtons();
         });
     } else {
         // The DOM is already loaded
-        addDownloadButton();
         addCustomInstallButtons();
     }
 })();
