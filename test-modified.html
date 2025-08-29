@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page for VS Code Extension Installer</title>
+    <style>
+        .one-click-install-container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .install-button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: Segoe UI, sans-serif;
+        }
+        
+        .install-button:hover {
+            background-color: #005a9e;
+        }
+        
+        .custom-install-buttons {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .ux-oneclick-install-button-container {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Page for VS Code Extension Installer</h1>
+    
+    <div class="one-click-install-container">
+        <button class="install-button">Install</button>
+        <div class="installHelpInfo">
+            <a href="https://aka.ms/vscode_extn_install" target="_blank" rel="noreferrer noopener nofollow" class="light">
+                Trouble Installing?
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Simulate the userscript functionality
+        setTimeout(function() {
+            console.log('Simulating userscript execution');
+            
+            // Try to find the install container
+            const installContainer = document.querySelector('.one-click-install-container');
+            if (installContainer) {
+                console.log('Found install container');
+                
+                // Try to find the install button
+                const installButton = installContainer.querySelector('.install-button');
+                if (installButton) {
+                    console.log('Found install button');
+                    
+                    // Create download button
+                    const downloadButton = document.createElement('button');
+                    downloadButton.className = 'install-button';
+                    downloadButton.textContent = 'Download VSIX';
+                    downloadButton.style.marginLeft = '10px';
+                    downloadButton.style.backgroundColor = '#4CAF50';
+                    
+                    // Add click handler
+                    downloadButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        alert('Download would start now!');
+                    });
+                    
+                    // Insert the download button
+                    installContainer.appendChild(downloadButton);
+                    console.log('Added download button');
+                    
+                    // Create container for custom buttons
+                    const customButtonsContainer = document.createElement('div');
+                    customButtonsContainer.className = 'custom-install-buttons';
+                    customButtonsContainer.style.marginTop = '10px';
+                    customButtonsContainer.style.display = 'flex';
+                    customButtonsContainer.style.gap = '10px';
+                    customButtonsContainer.style.flexWrap = 'wrap';
+                    
+                    // Define custom editors
+                    const editors = [
+                        { name: 'Cursor', iconUrl: 'https://icon.horse/icon/cursor.sh' },
+                        { name: 'Windsurf', iconUrl: 'https://icon.horse/icon/windsurf.ai' },
+                        { name: 'Trae', iconUrl: 'https://lf-cdn.trae.ai/obj/trae-ai-sg/trae_website_prod/favicon.png' }
+                    ];
+                    
+                    // Create a button for each editor
+                    editors.forEach(editor => {
+                        const buttonWrapper = document.createElement('span');
+                        buttonWrapper.className = 'ux-oneclick-install-button-container';
+                        buttonWrapper.style.marginRight = '10px';
+                        
+                        const customButton = document.createElement('button');
+                        customButton.type = 'button';
+                        customButton.className = 'install-button';
+                        customButton.style.display = 'inline-flex';
+                        customButton.style.alignItems = 'center';
+                        customButton.style.justifyContent = 'center';
+                        customButton.style.padding = '8px 16px';
+                        customButton.style.borderRadius = '2px';
+                        customButton.style.border = '1px solid #ccc';
+                        customButton.style.backgroundColor = '#f0f0f0';
+                        customButton.style.cursor = 'pointer';
+                        customButton.style.fontSize = '14px';
+                        customButton.style.fontFamily = 'Segoe UI, sans-serif';
+                        
+                        const icon = document.createElement('img');
+                        icon.src = editor.iconUrl;
+                        icon.alt = `${editor.name} icon`;
+                        icon.style.width = '16px';
+                        icon.style.height = '16px';
+                        icon.style.marginRight = '8px';
+                        icon.style.verticalAlign = 'text-bottom';
+                        
+                        const text = document.createTextNode(`Install to ${editor.name}`);
+                        
+                        customButton.appendChild(icon);
+                        customButton.appendChild(text);
+                        buttonWrapper.appendChild(customButton);
+                        
+                        // Add click handler
+                        customButton.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            alert(`Would install to ${editor.name}!`);
+                        });
+                        
+                        customButtonsContainer.appendChild(buttonWrapper);
+                    });
+                    
+                    // Insert the custom buttons container
+                    installContainer.parentNode.insertBefore(customButtonsContainer, installContainer.nextSibling);
+                    console.log('Added custom install buttons');
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

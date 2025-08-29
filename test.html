@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page for VS Code Extension Installer</title>
+    <style>
+        .one-click-install-container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        
+        .install-button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: Segoe UI, sans-serif;
+        }
+        
+        .install-button:hover {
+            background-color: #005a9e;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Page for VS Code Extension Installer</h1>
+    
+    <div class="one-click-install-container">
+        <button class="install-button">Install</button>
+        <div class="installHelpInfo">
+            <a href="https://aka.ms/vscode_extn_install" target="_blank" rel="noreferrer noopener nofollow" class="light">
+                Trouble Installing?
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Simulate the userscript functionality
+        setTimeout(function() {
+            console.log('Simulating userscript execution');
+            
+            // Try to find the install container
+            const installContainer = document.querySelector('.one-click-install-container');
+            if (installContainer) {
+                console.log('Found install container');
+                
+                // Try to find the install button
+                const installButton = installContainer.querySelector('.install-button');
+                if (installButton) {
+                    console.log('Found install button');
+                    
+                    // Create download button
+                    const downloadButton = document.createElement('button');
+                    downloadButton.className = 'install-button';
+                    downloadButton.textContent = 'Download';
+                    downloadButton.style.marginLeft = '10px';
+                    downloadButton.style.backgroundColor = '#4CAF50';
+                    
+                    // Add click handler
+                    downloadButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        alert('Download would start now!');
+                    });
+                    
+                    // Insert the download button
+                    installContainer.appendChild(downloadButton);
+                    console.log('Added download button');
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
