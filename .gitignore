@@ -1,4 +1,8 @@
-**/.DS_Store
-CLAUDE.md
-QWEN.md
-scriptbox.log
+.DS_Store
+[A-Z]*.md
+!README.md
+\.[a-z]*/
+*.log
+*.sh 
+dist/
+node_modules/

@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Better VS Code Extension Installer
 // @namespace    http://tampermonkey.net/
-// @version      1.7
-// @description  Adds download and install buttons to VS Code extension marketplace pages. Download .vsix files directly or install extensions to VS Code, Cursor, Windsurf, and Trae with one click.
+// @version      1.13
+// @description  Adds download and install buttons to VS Code extension marketplace pages. Download .vsix files directly or install extensions to VS Code, Cursor, Windsurf, Trae, and Kiro with one click.
 // @author       eachann1024
 // @match        https://marketplace.visualstudio.com/items?itemName=*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=visualstudio.com
@@ -18,13 +18,11 @@
 (function() {
     'use strict';
 
-    // Function to extract itemName from URL
     function getItemNameFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
         return urlParams.get('itemName');
     }
 
-    // Function to extract publisher and extension name from itemName
     function parseItemName(itemName) {
         const parts = itemName.split('.');
         if (parts.length < 2) {
@@ -32,18 +30,15 @@
         }
         return {
             publisher: parts[0],
-            extensionName: parts.slice(1).join('.') // Join remaining parts in case of multiple dots
+            extensionName: parts.slice(1).join('.')
         };
     }
 
-    // Function to find version on the page
     function findVersion() {
-        // Try to find version in the main content area under 'Additional Details'
         const detailsSections = document.querySelectorAll('.additional-details-section');
         for (let section of detailsSections) {
             const header = section.querySelector('h3');
             if (header && header.textContent.trim() === 'Additional Details') {
-                // Look for a row containing 'Version' in the first cell
                 const rows = section.querySelectorAll('tr');
                 for (let row of rows) {
                     const firstCell = row.querySelector('td:first-child');
@@ -57,7 +52,6 @@
             }
         }
 
-        // Try to find version in the 'Version History' section
         const versionHistory = document.querySelector('#version-history');
         if (versionHistory) {
             const versionElement = versionHistory.querySelector('tr:nth-child(2) td:nth-child(1)');
@@ -66,13 +60,11 @@
             }
         }
 
-        // Fallback: Try to find any element with class 'version' or similar
         const versionElement = document.querySelector('.version, [data-reporting-key="Version"]');
         if (versionElement) {
             return versionElement.textContent.trim();
         }
 
-        // New fallback: Try to find version in the JSON script tag
         const jsonScript = document.querySelector('script.jiContent');
         if (jsonScript) {
             try {
@@ -85,24 +77,19 @@
             }
         }
 
-        // If not found, throw an error
         throw new Error('Could not find extension version on the page');
     }
 
-    // Function to create and trigger download
     function downloadVSIX(publisher, extensionName, version) {
         const downloadUrl = `https://marketplace.visualstudio.com/_apis/public/gallery/publishers/${publisher}/vsextensions/${extensionName}/${version}/vspackage`;
-        
-        // Create a temporary link and trigger download
         const link = document.createElement('a');
         link.href = downloadUrl;
-        link.download = `${extensionName}-${version}.vsix`; // Suggest a filename
+        link.download = `${extensionName}-${version}.vsix`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 
-    // Function to create and insert custom install buttons
     function addCustomInstallButtons() {
         try {
             const itemName = getItemNameFromURL();
@@ -112,16 +99,19 @@
             }
 
             const { publisher, extensionName } = parseItemName(itemName);
-            // Note: We don't need the version for custom install buttons, so we don't call findVersion here
-
-            // Find the main install button container
-            const installContainer = document.querySelector('.ux-item-action');
+            
+            let installContainer = document.querySelector('.ux-item-action');
+            if (!installContainer) {
+                installContainer = document.querySelector('.install-button-container') ||
+                                 document.querySelector('.extension-action-container') ||
+                                 document.querySelector('[class*="install"][class*="button"]') ||
+                                 document.querySelector('.action-buttons');
+            }
             if (!installContainer) {
                 console.error('Main install button container not found');
                 return;
             }
 
-            // Create container for new buttons
             const customButtonsContainer = document.createElement('div');
             customButtonsContainer.className = 'custom-install-buttons';
             customButtonsContainer.style.marginTop = '10px';
@@ -129,7 +119,6 @@
             customButtonsContainer.style.gap = '10px';
             customButtonsContainer.style.flexWrap = 'wrap';
 
-            // Define custom editors with their icons
             const editors = [
                 { 
                     name: 'Cursor', 
@@ -145,21 +134,54 @@
                     name: 'Trae', 
                     scheme: 'trae',
                     iconUrl: 'https://lf-cdn.trae.ai/obj/trae-ai-sg/trae_website_prod/favicon.png'
+                },
+                { 
+                    name: 'Kiro', 
+                    scheme: 'kiro',
+                    iconUrl: 'https://kiro.dev/favicon.ico'
                 }
             ];
 
-            // Create a button for each editor
+            const downloadButtonWrapper = document.createElement('span');
+            downloadButtonWrapper.className = 'ux-oneclick-install-button-container';
+            downloadButtonWrapper.innerHTML = `
+                <button type="button" class="ms-Button ux-button install ms-Button--default root-39" data-is-focusable="true" id="download-extension-button">
+                    <div class="ms-Button-flexContainer flexContainer-40" style="display: flex; align-items: center;">
+                        <div class="ms-Button-textContainer textContainer-41">
+                            <div class="ms-Button-label label-43" style="display: flex; align-items: center;">
+                                <img src="https://icon.horse/icon/visualstudio.com" alt="Download icon" style="width: 16px; height: 16px; margin-right: 8px; display: inline-block;">
+                                Download VSIX
+                            </div>
+                        </div>
+                    </div>
+                </button>
+            `;
+
+            const downloadButton = downloadButtonWrapper.querySelector('button');
+            downloadButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                    const version = findVersion();
+                    downloadVSIX(publisher, extensionName, version);
+                } catch (error) {
+                    console.error('Error downloading extension:', error);
+                    alert('Failed to download extension. Please check console for details.');
+                }
+            });
+
+            customButtonsContainer.appendChild(downloadButtonWrapper);
+
             editors.forEach(editor => {
-                // Clone the original install button structure
                 const buttonWrapper = document.createElement('span');
                 buttonWrapper.className = 'ux-oneclick-install-button-container';
                 buttonWrapper.innerHTML = `
                     <button type="button" class="ms-Button ux-button install ms-Button--default root-39" data-is-focusable="true">
-                        <div class="ms-Button-flexContainer flexContainer-40">
+                        <div class="ms-Button-flexContainer flexContainer-40" style="display: flex; align-items: center;">
                             <div class="ms-Button-textContainer textContainer-41">
-                                <div class="ms-Button-label label-43">
-                                    <img src="${editor.iconUrl}" alt="${editor.name} icon" style="width: 16px; height: 16px; margin-right: 8px; vertical-align: text-bottom;">
-                                    Install to ${editor.name}
+                                <div class="ms-Button-label label-43" style="display: flex; align-items: center;">
+                                    <img src="${editor.iconUrl}" alt="${editor.name} icon" style="width: 16px; height: 16px; margin-right: 8px; display: inline-block;">
+                                    ${editor.name}
                                 </div>
                             </div>
                         </div>
@@ -167,26 +189,12 @@
                 `;
 
                 const customButton = buttonWrapper.querySelector('button');
-                
-                // Add click handler for custom install
                 customButton.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
                     try {
-                        // Construct the custom scheme URL
                         const customUrl = `${editor.scheme}:extension/${publisher}.${extensionName}`;
-                        
-                        // Attempt to open the URL
                         window.open(customUrl, '_self');
-                        
-                        // Fallback: Create a temporary link and click it
-                        // const link = document.createElement('a');
-                        // link.href = customUrl;
-                        // link.style.display = 'none';
-                        // document.body.appendChild(link);
-                        // link.click();
-                        // document.body.removeChild(link);
                     } catch (error) {
                         console.error(`Error installing to ${editor.name}:`, error);
                         alert(`Failed to install to ${editor.name}. Please check console for details.`);
@@ -196,56 +204,104 @@
                 customButtonsContainer.appendChild(buttonWrapper);
             });
 
-            // Create download button
-            const downloadButtonWrapper = document.createElement('span');
-            downloadButtonWrapper.className = 'ux-oneclick-install-button-container';
-            downloadButtonWrapper.innerHTML = `
-                <button type="button" class="ms-Button ux-button install ms-Button--default root-39" data-is-focusable="true" id="download-extension-button">
-                    <div class="ms-Button-flexContainer flexContainer-40">
-                        <div class="ms-Button-textContainer textContainer-41">
-                            <div class="ms-Button-label label-43">
-                                <img src="https://icon.horse/icon/visualstudio.com" alt="Download icon" style="width: 16px; height: 16px; margin-right: 8px; vertical-align: text-bottom;">
-                                Download Extension
-                            </div>
-                        </div>
-                    </div>
-                </button>
-            `;
-
-            const downloadButton = downloadButtonWrapper.querySelector('button');
-            
-            // Add click handler for download
-            downloadButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                try {
-                    // Find version when button is clicked
-                    const version = findVersion();
-                    downloadVSIX(publisher, extensionName, version);
-                } catch (error) {
-                    console.error('Error downloading extension:', error);
-                    alert('Failed to download extension. Please check console for details.');
-                }
-            });
-
-            // Add download button to container
-            customButtonsContainer.appendChild(downloadButtonWrapper);
-
-            // Insert the custom buttons container after the main install container
             installContainer.parentNode.insertBefore(customButtonsContainer, installContainer.nextSibling);
+            addVersionHistoryButtons(editors, publisher, extensionName);
         } catch (error) {
             console.error('Error adding custom install buttons:', error);
         }
     }
 
-    // Wait for the page to load completely
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            addCustomInstallButtons();
+    function addVersionHistoryButtons(editors, publisher, extensionName) {
+        const targetTable = document.querySelector('#version-history table') || document.querySelector('.version-history-table, [class*="version"][class*="history"] table');
+        if (!targetTable) { return; }
+        const rows = targetTable.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            if (row.querySelector('.version-custom-buttons')) {
+                return;
+            }
+            const versionCell = row.querySelector('td:first-child');
+            if (!versionCell) return;
+            const version = versionCell.textContent.trim();
+            const buttonsContainer = document.createElement('td');
+            buttonsContainer.className = 'version-custom-buttons';
+            buttonsContainer.style.cssText = 'padding: 8px; white-space: nowrap; text-align: center;';
+            const downloadBtn = document.createElement('button');
+            downloadBtn.innerHTML = 'Download VSIX';
+            downloadBtn.style.cssText = 'margin-right: 5px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px; background: #f5f5f5; cursor: pointer; font-size: 12px;';
+            downloadBtn.title = `下载 ${version} 版本`;
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                try {
+                    downloadVSIX(publisher, extensionName, version);
+                } catch (error) {
+                    console.error('下载扩展时出错:', error);
+                    alert('下载失败，请查看控制台了解详情。');
+                }
+            });
+            buttonsContainer.appendChild(downloadBtn);
+            editors.forEach(editor => {
+                const installBtn = document.createElement('button');
+                installBtn.innerHTML = `${editor.name}`;
+                installBtn.style.cssText = 'margin-right: 5px; padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px; background: #f0f8ff; cursor: pointer; font-size: 12px;';
+                installBtn.title = `安装到 ${editor.name}`;
+                installBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    try {
+                        const customUrl = `${editor.scheme}:extension/${publisher}.${extensionName}`;
+                        window.open(customUrl, '_self');
+                    } catch (error) {
+                        console.error(`安装到 ${editor.name} 时出错:`, error);
+                        alert(`安装到 ${editor.name} 失败，请查看控制台了解详情。`);
+                    }
+                });
+                
+                buttonsContainer.appendChild(installBtn);
+            });
+            row.appendChild(buttonsContainer);
         });
-    } else {
-        // The DOM is already loaded
+        const headerRow = targetTable.querySelector('thead tr, tr:first-child');
+        if (headerRow && !headerRow.querySelector('.version-actions-header')) {
+            const headerCell = document.createElement('th');
+            headerCell.className = 'version-actions-header';
+            headerCell.textContent = '操作';
+            headerCell.style.cssText = 'padding: 8px; text-align: center; font-weight: bold;';
+            headerRow.appendChild(headerCell);
+        }
+    }
+
+    function initializeButtons() {
         addCustomInstallButtons();
+        setTimeout(() => {
+            const customButtons = document.querySelector('.custom-install-buttons');
+            if (!customButtons) {
+                addCustomInstallButtons();
+            }
+            const versionButtons = document.querySelector('.version-custom-buttons');
+            if (!versionButtons) {
+                const itemName = getItemNameFromURL();
+                if (itemName) {
+                    try {
+                        const { publisher, extensionName } = parseItemName(itemName);
+                        const editors = [
+                            { name: 'Cursor', scheme: 'cursor', iconUrl: 'https://icon.horse/icon/cursor.sh' },
+                            { name: 'Windsurf', scheme: 'windsurf', iconUrl: 'https://icon.horse/icon/windsurf.ai' },
+                            { name: 'Trae', scheme: 'trae', iconUrl: 'https://lf-cdn.trae.ai/obj/trae-ai-sg/trae_website_prod/favicon.png' },
+                            { name: 'Kiro', scheme: 'kiro', iconUrl: 'https://kiro.dev/favicon.ico' }
+                        ];
+                        addVersionHistoryButtons(editors, publisher, extensionName);
+                    } catch (error) {
+                        console.error('无法为版本历史添加按钮:', error);
+                    }
+                }
+            }
+        }, 2000);
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeButtons);
+    } else {
+        initializeButtons();
     }
 })();
