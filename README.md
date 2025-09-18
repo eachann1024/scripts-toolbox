@@ -1,47 +1,47 @@
-# Scripts Toolbox
+# 脚本工具箱
 
-[切换到中文版](README_zh.md)
+[Switch to English](README.md)
 
-## Overview
+## 概述
 
-A collection of useful scripts to enhance your browsing experience and automate daily tasks.
+一系列有用的脚本，用于增强您的浏览体验并自动化日常任务。
 
-## Better VS Code Extension Installer
+## 更好的 VS Code 扩展安装器
 
-This script adds download and direct-install buttons to VS Code extension marketplace pages. It allows you to download .vsix files or install extensions directly to Cursor, Windsurf, and Trae editors.
+此脚本在 VS Code 扩展市场页面添加了下载和直接安装按钮。它允许您下载 .vsix 文件，或将扩展直接安装到 Cursor、Windsurf 和 Trae 编辑器中。
 
-### Features
+### 功能
 
-- Adds a "Download" button next to the install button on VS Code extension pages
-- Downloads the .vsix file directly from the marketplace
-- Maintains the same styling as the original install button
-- Adds "Install to Cursor", "Install to Windsurf", and "Install to Trae" buttons with editor icons
+- 在 VS Code 扩展页面的安装按钮旁添加"下载"按钮
+- 直接从市场下载 .vsix 文件
+- 保持与原始安装按钮相同的样式
+- 添加了带编辑器图标的“安装到 Cursor”、“安装到 Windsurf”和“安装到 Trae”按钮
 
-### Installation
+### 安装
 
-1. Install a user script manager like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/)
-2. Click on the raw version of the script: [VSCodeExtensionDownload.user.js](script/VSCodeExtensionDownload.user.js) *(Note: The filename remains the same for continuity, but the script name has been updated)*
-3. The user script manager should automatically detect and prompt you to install the script
+1. 安装用户脚本管理器，如 [Tampermonkey](https://www.tampermonkey.net/) 或 [Violentmonkey](https://violentmonkey.github.io/)
+2. 点击脚本的原始版本：[VSCodeExtensionDownload.user.js](script/VSCodeExtensionDownload.user.js) *(注意：为保持连续性，文件名保持不变，但脚本名称已更新)*
+3. 用户脚本管理器应自动检测并提示您安装脚本
 
-### Usage
+### 使用方法
 
-1. Navigate to any VS Code extension page on the marketplace
-2. You'll see a "Download" button, "Install to Cursor", "Install to Windsurf", and "Install to Trae" buttons next to the install button
-3. Click the desired button:
-   - "Download": Downloads the .vsix file
-   - "Install to ...": Installs the extension directly to the specified editor (if supported)
+1. 导航到市场上的任何 VS Code 扩展页面
+2. 您会在安装按钮旁看到"下载"按钮、"安装到 Cursor"按钮、"安装到 Windsurf"按钮和"安装到 Trae"按钮
+3. 点击所需的按钮：
+   - "下载"：下载 .vsix 文件
+   - "安装到 ..."：直接将扩展安装到指定的编辑器中（如果受支持）
 
-### Changelog
+### 更新日志
 
-- **v1.7**: Fixed issue where download button was not appearing alongside custom install buttons. Improved button creation logic to ensure all buttons are properly displayed.
-- **v1.6**: Fixed download button not showing on some extension pages. Improved element selectors and styling to work with current VS Code Marketplace layout. Added debug logging for easier troubleshooting.
-- **v1.5**: Refactored button creation logic for better compatibility with different page layouts.
-- **v1.4**: Fixed download button not showing on some extension pages. Improved element selectors to work with current VS Code Marketplace layout.
-- **v1.3**: Optimized metadata tags for better visibility on userscript platforms. Added more keywords to description.
-- **v1.2**: Renamed to "Better VS Code Extension Installer". Added "Install to Cursor", "Install to Windsurf", and "Install to Trae" buttons with editor icons.
-- **v1.1**: Added `@license` meta key for Greasy Fork compatibility.
-- **v1.0**: Initial release with download functionality.
+- **v1.7**：修复了下载按钮未与自定义安装按钮一起显示的问题。改进了按钮创建逻辑，确保所有按钮都能正确显示。
+- **v1.6**：修复了某些扩展页面上下载按钮不显示的问题。改进了元素选择器和样式以适配当前 VS Code Marketplace 布局。添加了调试日志以便于故障排除。
+- **v1.5**：重构了按钮创建逻辑，以更好地兼容不同的页面布局。
+- **v1.4**：修复了某些扩展页面上下载按钮不显示的问题。改进了元素选择器以适配当前 VS Code Marketplace 布局。
+- **v1.3**：优化元数据标签以提高在用户脚本平台的可见性。在描述中添加了更多关键词。
+- **v1.2**：重命名为"更好的 VS Code 扩展安装器"。添加了带编辑器图标的"安装到 Cursor"、"安装到 Windsurf"和"安装到 Trae"按钮。
+- **v1.1**：为兼容 Greasy Fork 添加了 `@license` 元数据键。
+- **v1.0**：初始版本，提供下载功能。
 
-### Contributing
+### 贡献
 
-Feel free to submit issues or pull requests to improve the scripts.
+欢迎提交问题或拉取请求来改进脚本。
