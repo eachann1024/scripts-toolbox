@@ -1,8 +1,11 @@
 // ==UserScript==
-// @name         Better VS Code Extension Installer
+// @name         更好的 VS Code 扩展安装程序
+// @name:en      Better VS Code Extension Installer
 // @namespace    http://tampermonkey.net/
 // @version      1.13
 // @description  Adds download and install buttons to VS Code extension marketplace pages. Download .vsix files directly or install extensions to VS Code, Cursor, Windsurf, Trae, and Kiro with one click.
+// @description:en  Adds download and install buttons to VS Code extension marketplace pages. Download .vsix files directly or install extensions to VS Code, Cursor, Windsurf, Trae, and Kiro with one click.
+// @description:zh-CN  为 VS Code 扩展市场页面添加下载和安装按钮。直接下载 .vsix 文件或一键安装扩展到 VS Code、Cursor、Windsurf、Trae 和 Kiro。
 // @author       eachann1024
 // @match        https://marketplace.visualstudio.com/items?itemName=*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=visualstudio.com
@@ -13,6 +16,27 @@
 // @updateURL    https://github.com/eachann1024/scripts-toolbox/raw/master/script/VSCodeExtensionDownload.user.js
 // @downloadURL  https://github.com/eachann1024/scripts-toolbox/raw/master/script/VSCodeExtensionDownload.user.js
 // @run-at       document-idle
+// @compatible   chrome
+// @compatible   firefox
+// @compatible   edge
+// @category     Developer Tools
+// @tag          vscode
+// @tag          extension
+// @tag          download
+// @tag          cursor
+// @tag          windsurf
+// @tag          marketplace
+// @tag          vsix
+// @tag          开发工具
+// @tag          vscode扩展
+// @tag          扩展
+// @tag          下载
+// @tag          Kiro
+// @tag          Trae
+// @tag          Windsurf
+
+// @keyword      vscode extension download cursor windsurf trae kiro vsix marketplace
+// @keyword      扩展下载 插件下载 开发工具
 // ==/UserScript==
 
 (function() {
